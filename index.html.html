@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Simulateur d’orientation après la 5G — Prototype V1</title>
+<style>
+:root{--bg:#f5f7fb;--card:#fff;--ink:#172033;--muted:#667085;--line:#e5e7eb;--accent:#6657d9;--ok:#16865c;--warn:#b76e00;--info:#2878c7;--bad:#b42318}
+*{box-sizing:border-box} body{margin:0;background:var(--bg);font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--ink)}
+header{background:linear-gradient(135deg,#5d4ed1,#8a66dc);color:white;padding:34px 20px}
+.wrap{max-width:1120px;margin:auto}.eyebrow{opacity:.85;font-weight:700;letter-spacing:.05em;text-transform:uppercase;font-size:12px}
+h1{margin:.3rem 0 .5rem;font-size:clamp(28px,4vw,44px)} h2{margin-top:0}.sub{max-width:800px;opacity:.93}
+main{padding:24px 18px 60px}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px;margin:0 0 18px;box-shadow:0 5px 18px rgba(16,24,40,.04)}
+.grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px;align-items:center}.grid.head{font-weight:800;color:var(--muted);font-size:13px}
+.row{display:contents}.row>div{padding:7px 0;border-top:1px solid #f0f1f4}
+input,select{width:100%;padding:10px 11px;border:1px solid #cfd4dc;border-radius:10px;background:white;font:inherit}
+button{border:0;border-radius:12px;padding:13px 18px;font-weight:800;font-size:16px;cursor:pointer}
+.primary{background:var(--accent);color:white}.secondary{background:#eef0f6;color:#344054}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+.hidden{display:none}.pill{display:inline-block;border-radius:999px;padding:5px 10px;font-weight:800;font-size:13px}
+.ok{background:#e8f7f0;color:var(--ok)}.warn{background:#fff4df;color:var(--warn)}.info{background:#eaf4ff;color:var(--info)}.bad{background:#feeceb;color:var(--bad)}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}.metric{border:1px solid var(--line);border-radius:14px;padding:14px}.metric b{display:block;font-size:21px;margin-top:3px}
+.orientation{border:1px solid var(--line);border-radius:15px;padding:16px;margin:11px 0}.orientation h3{margin:0 0 7px}.orientation p{margin:6px 0}.small{font-size:13px;color:var(--muted)}
+details{border-top:1px solid var(--line);padding-top:10px;margin-top:10px}summary{cursor:pointer;font-weight:750}
+.notice{padding:13px 15px;border-left:4px solid var(--info);background:#f0f7ff;border-radius:8px;margin:12px 0}
+footer{color:var(--muted);font-size:13px;margin-top:24px}
+@media(max-width:650px){.grid{grid-template-columns:1.4fr .8fr .8fr;font-size:14px}.card{padding:16px}}
+
+/* V1.6 — optimisation téléphone */
+@media(max-width:700px){
+  body{font-size:16px}
+  header{padding:24px 16px}
+  main{padding:14px 10px 44px}
+  .wrap{width:100%}
+  .card{padding:15px;border-radius:14px;margin-bottom:12px}
+  h1{font-size:29px;line-height:1.08}
+  h2{font-size:21px}
+  .sub{font-size:15px}
+  .grid.head{display:none}
+  .grid{display:block}
+  .row{display:grid;grid-template-columns:1fr;gap:6px;border-top:1px solid var(--line);padding:13px 0}
+  .row>div{border:0;padding:0}
+  .row>div:first-child{font-weight:800;font-size:16px}
+  .row>div:nth-child(2){color:var(--muted)}
+  input,select{min-height:46px;font-size:16px}
+  .actions{display:grid;grid-template-columns:1fr;gap:8px}
+  button{width:100%;min-height:48px}
+  .metrics{grid-template-columns:1fr 1fr;gap:8px}
+  .metric{padding:11px}
+  .metric b{font-size:19px}
+  .orientation{padding:14px}
+  .orientation h3{font-size:17px;line-height:1.25}
+  .notice{padding:12px}
+  details{font-size:14px}
+}
+@media(max-width:390px){
+  .metrics{grid-template-columns:1fr}
+}
+
+</style>
+</head>
+<body>
+<header><div class="wrap">
+<div class="eyebrow">Prototype fonctionnel V1.9 · Fiabilité</div>
+<h1>Mes possibilités après la 5G</h1>
+<div class="sub">Encode tes résultats actuels. Le simulateur calcule tes 7 disciplines de promotion, estime le niveau de réussite garanti et analyse les critères scolaires des voies 4C, 4G, DT et DAP.</div>
+</div></header>
+
+<main class="wrap">
+<section class="card">
+<h2>1. Mes résultats</h2>
+<p class="small"><b>Version mobile :</b> les champs sont intégrés directement à la page pour rester visibles dans l’aperçu iPhone.<br><br>Notes sur 60. Pour allemand, français, anglais et mathématiques, indique aussi le cours suivi. Pour les cours d’expression/orientation/talents, indique si tu suis réellement le cours.</p>
+<div class="grid head"><div>Branche</div><div>Niveau / présence</div><div>Note /60</div></div>
+
+<div id="inputs">
+<div class="row"><div>Allemand</div><div><select id="deLevel"><option value="">—</option><option>Base</option><option>Avancé</option></select></div><div><input id="de" type="number" min="0" max="60" step="1" inputmode="decimal" placeholder="Note /60"></div></div>
+<div class="row"><div>Anglais</div><div><select id="enLevel"><option value="">—</option><option>Base</option><option>Avancé</option></select></div><div><input id="en" type="number" min="0" max="60" step="1" inputmode="decimal" placeholder="Note /60"></div></div>
+<div class="row"><div>Français</div><div><select id="frLevel"><option value="">—</option><option>Base</option><option>Avancé</option></select></div><div><input id="fr" type="number" min="0" max="60" step="1" inputmode="decimal" placeholder="Note /60"></div></div>
+<div class="row"><div>Mathématiques</div><div><select id="maLevel"><option value="">—</option><option>Base</option><option>Avancé</option></select></div><div><input id="ma" type="number" min="0" max="60" step="1" inputmode="decimal" placeholder="Note /60"></div></div>
+<div class="row"><div>Sciences naturelles</div><div>—</div><div><input id="sn" type="number" min="0" max="60" step="1" inputmode="decimal" placeholder="Note /60"></div></div>
+<div class="row"><div>Informatique</div><div>—</div><div><input id="info" type="number" min="0" max="60" step="1" inputmode="decimal" placeholder="Note /60"></div></div>
+<div class="row"><div>Géographie</div><div>—</div><div><input id="geo" type="number" min="0" max="60" step="1" inputmode="decimal" placeholder="Note /60"></div></div>
+<div class="row"><div>Histoire</div><div>—</div><div><input id="hist" type="number" min="0" max="60" step="1" inputmode="decimal" placeholder="Note /60"></div></div>
+<div class="row" data-expr-component="yes"><div>Éducation artistique</div><div><select id="artTaken" onchange="toggleTaken('art')"><option value="yes">Cours suivi</option><option value="no">Je n’ai pas ce cours</option></select></div><div><input id="art" type="number" min="0" max="60" step="1" inputmode="decimal" placeholder="Note /60"></div></div>
+<div class="row" data-expr-component="yes"><div>Vie et société</div><div><select id="vesTaken" onchange="toggleTaken('ves')"><option value="yes">Cours suivi</option><option value="no">Je n’ai pas ce cours</option></select></div><div><input id="ves" type="number" min="0" max="60" step="1" inputmode="decimal" placeholder="Note /60"></div></div>
+<div class="row" data-expr-component="yes"><div>Digital Sciences</div><div><select id="digTaken" onchange="toggleTaken('dig')"><option value="yes">Cours suivi</option><option value="no">Je n’ai pas ce cours</option></select></div><div><input id="dig" type="number" min="0" max="60" step="1" inputmode="decimal" placeholder="Note /60"></div></div>
+<div class="row" data-expr-component="yes"><div>Options et ateliers</div><div><select id="optTaken" onchange="toggleTaken('opt')"><option value="yes">Cours suivi</option><option value="no">Je n’ai pas ce cours</option></select></div><div><input id="opt" type="number" min="0" max="60" step="1" inputmode="decimal" placeholder="Note /60"></div></div>
+<div class="row" data-expr-component="yes"><div>Éducation physique et sportive</div><div><select id="epsTaken" onchange="toggleTaken('eps')"><option value="yes">Cours suivi</option><option value="no">Je n’ai pas ce cours</option></select></div><div><input id="eps" type="number" min="0" max="60" step="1" inputmode="decimal" placeholder="Note /60"></div></div>
+</div>
+<div class="notice" style="border-left-color:#6657d9;background:#f6f4ff;margin-top:18px">
+<b>Notes globales du bulletin (facultatif)</b>
+<p class="small">Si tu connais une note globale du bulletin, saisis-la ici : elle sera utilisée en priorité. Sinon, le simulateur utilise une estimation calculée à partir des branches. Pour « Expression, orientation et promotion des talents », cette estimation est indicative car la note officielle est une moyenne pondérée.</p>
+<label><b>SCIEN</b><input id="scienOfficial" type="number" min="0" max="60" step="1" inputmode="decimal" placeholder="Laisser vide si inconnue"></label><br><br>
+<label><b>SCSOC</b><input id="scsocOfficial" type="number" min="0" max="60" step="1" inputmode="decimal" placeholder="Laisser vide si inconnue"></label><br><br>
+<label><b>Expression, orientation et promotion des talents</b><input id="exprOfficial" type="number" min="0" max="60" step="1" inputmode="decimal" placeholder="Laisser vide si inconnue"></label>
+</div>
+<div class="actions">
+<button class="primary mobile-main-action" onclick="analyse()">Analyser mes résultats</button>
+<button class="secondary" onclick="resetAll()">Effacer</button>
+</div>
+<div id="error" class="notice hidden"></div>
+</section>
+
+<div id="results" class="hidden">
+<section class="card"><h2>2. Mes 7 disciplines de promotion</h2><div id="metrics" class="metrics"></div><div id="formulae"></div></section>
+<section class="card"><h2>3. Ma situation actuelle</h2><div id="success"></div></section>
+<section class="card"><h2>4. Mes possibilités</h2>
+<p class="small">🟢 critères scolaires remplis · 🔵 critères scolaires remplis mais condition externe · 🟠 critères pas encore remplis</p>
+<div id="orientations"></div></section>
+<section class="card"><h2>5. Mes objectifs les plus proches</h2><div id="priorities"></div></section>
+</div>
+
+<footer>
+Prototype pédagogique V1.9 · Fiabilité — calcul prudent : dans les zones où le conseil de classe peut attribuer deux niveaux différents, le simulateur retient le niveau inférieur garanti. Il ne remplace ni l’avis d’orientation ni une décision du conseil de classe.<br><strong>Calculateur conçu et créé par Sergio Bandeiras.</strong> Règles vérifiées sur la brochure MENJE « Que faire après la 5e de l’enseignement secondaire général ? », avril 2026.
+</footer>
+</main>
+
+<script>
+const subjects=[
+ ["de","Allemand",true],["fr","Français",true],["en","Anglais",true],["ma","Mathématiques",true],
+ ["sn","Sciences naturelles",false],["info","Informatique",false],["hist","Histoire",false],["geo","Géographie",false],
+ ["eps","Éducation physique et sportive",false,true],["art","Éducation artistique",false,true],["dig","Digital Sciences",false,true],
+ ["opt","Options et ateliers",false,true],["ves","Vie et société",false,true]
+];
+function toggleTaken(id){
+ const el=document.getElementById(id),taken=document.getElementById(id+"Taken").value==="yes";
+ el.disabled=!taken;if(!taken)el.value="";
+}
+
+const n=id=>+document.getElementById(id).value;
+const lev=id=>document.getElementById(id+"Level").value;
+const round=x=>Math.round(x*10)/10;
+const guaranteedLevel=x=>x>=50?"Excellence":x>=40?"Fort":x>=30?"Suffisant":x>=20?"Insuffisant":"Gravement insuffisant";
+const status=(ok,external=false)=>ok?(external?`<span class="pill info">🔵 Condition externe</span>`:`<span class="pill ok">🟢 Critères remplis</span>`):`<span class="pill warn">🟠 Pas encore rempli</span>`;
+function validate(){
+ for(const [id,label,l,optional] of subjects){
+  if(optional && document.getElementById(id+"Taken").value==="no") continue;
+  const val=document.getElementById(id).value;
+  if(val===""||+val<0||+val>60)return `Vérifie la note de « ${label} » : elle doit être comprise entre 0 et 60.`;
+  if(l&&!lev(id))return `Choisis Base ou Avancé pour « ${label} ».`;
+ }
+ for(const [id,label] of [["scienOfficial","SCIEN"],["scsocOfficial","SCSOC"],["exprOfficial","Expression, orientation et promotion des talents"]]){
+  const val=document.getElementById(id).value;
+  if(val!==""&&(+val<0||+val>60))return `Vérifie la note globale « ${label} ».`;
+ }
+ return "";
+}
+function calc(){
+ const v={}; subjects.forEach(([id,,,optional])=>v[id]=(optional&&document.getElementById(id+"Taken").value==="no")?null:n(id));
+ v.scienRaw=(v.sn+v.info)/2; v.scsocRaw=(v.hist+v.geo)/2;
+ v.exprComponents=["eps","art","dig","opt","ves"].filter(k=>v[k]!==null);
+ v.exprRaw=v.exprComponents.reduce((s,k)=>s+v[k],0)/v.exprComponents.length;
+ const so=document.getElementById("scienOfficial").value, sso=document.getElementById("scsocOfficial").value, eo=document.getElementById("exprOfficial").value;
+ v.scienSource=so!==""?"official":"estimated"; v.scsocSource=sso!==""?"official":"estimated"; v.exprSource=eo!==""?"official":"estimated";
+ v.scien=so!==""?+so:Math.ceil(v.scienRaw); v.scsoc=sso!==""?+sso:Math.ceil(v.scsocRaw); v.expr=eo!==""?+eo:Math.ceil(v.exprRaw);
+ return v;
+}
+function promotion(v){return [{k:"de",x:v.de},{k:"fr",x:v.fr},{k:"en",x:v.en},{k:"ma",x:v.ma},{k:"SCIEN",x:v.scien},{k:"SCSOC",x:v.scsoc},{k:"Expression",x:v.expr}]}
+function success(v){
+ const p=promotion(v), grave=p.filter(z=>z.x<20).length, insuff=p.filter(z=>z.x>=20&&z.x<30).length;
+ const adv=["de","fr","en","ma"].filter(k=>lev(k)==="Avancé");
+ let advanced=false,why="";
+ if(grave===0){
+   if(adv.length>=2 && (adv.includes("de")||adv.includes("fr")) && insuff===0){advanced=true;why="Au moins 2 cours avancés (dont allemand ou français) et aucune discipline insuffisante."}
+   else if(adv.length===3 && insuff<=1){advanced=true;why="3 cours avancés et au maximum 1 discipline insuffisante."}
+   else if(adv.length===4 && insuff<=2){advanced=true;why="4 cours avancés et au maximum 2 disciplines insuffisantes."}
+ }
+ if(advanced)return {level:"advanced",why,adv:adv.length,insuff,grave};
+ // conversion conservative for advanced-course insufficiencies only
+ let remaining=0;
+ for(const z of p){
+   if(z.x<30){
+     if(["de","fr","en","ma"].includes(z.k)&&lev(z.k)==="Avancé"&&z.x>=20) continue;
+     remaining++;
+   }
+ }
+ if(remaining<=2)return {level:"base",why:`Après conversion des insuffisances en cours avancé vers le niveau de base, il reste ${remaining} discipline(s) insuffisante(s).`,remaining,adv:adv.length,insuff,grave};
+ return {level:"notyet",why:`Après conversion, il reste ${remaining} disciplines insuffisantes. Il faut en avoir au maximum 2 pour garantir la réussite au niveau globalement de base.`,remaining,adv:adv.length,insuff,grave};
+}
+function need(x,t,label){return x>=t?null:{d:round(t-x),txt:`${label} : ${round(x)} → ${t} (+${round(t-x)})`}}
+function advNeed(k,x,t,label){if(lev(k)!=="Avancé")return {d:999,txt:`${label} doit être suivi en cours avancé (une hausse de note seule ne suffit pas).`};return need(x,t,label)}
+function minPath(paths){return paths.sort((a,b)=>a.d-b.d)[0]}
+function sciPair(v,a,b,labelA,labelB){
+ const p1=[need(a,40,labelA),need(b,30,labelB)].filter(Boolean), p2=[need(a,30,labelA),need(b,40,labelB)].filter(Boolean);
+ const mk=p=>({d:p.reduce((s,z)=>s+z.d,0),txt:p.length?p.map(z=>z.txt).join(" ; "):"Critère spécifique rempli."});
+ return minPath([mk(p1),mk(p2)]);
+}
+function card(code,name,genOK,path,external=false,extra=""){
+ const specOK=path.d===0;
+ const ok=genOK&&specOK;
+ return `<div class="orientation"><h3>${code} — ${name}</h3>${status(ok,external&&ok)}
+ <p><b>1. Réussite de la 5G :</b> ${genOK?"✓ condition générale remplie":"⚠ condition générale pas encore remplie"}</p>
+ <p><b>2. Critères spécifiques :</b> ${specOK?"✓ remplis":path.txt}</p>${extra?`<p class="small">${extra}</p>`:""}</div>`;
+}
+function analyse(){
+ const e=validate(),err=document.getElementById("error");
+ if(e){err.textContent=e;err.classList.remove("hidden");return} err.classList.add("hidden");
+ const v=calc(),s=success(v); document.getElementById("results").classList.remove("hidden");
+ const vals=[["Allemand",v.de,lev("de")],["Français",v.fr,lev("fr")],["Anglais",v.en,lev("en")],["Mathématiques",v.ma,lev("ma")],["SCIEN",v.scien,""],["SCSOC",v.scsoc,""],["Expression / talents",v.expr,""]];
+ document.getElementById("metrics").innerHTML=vals.map(([a,x,l])=>`<div class="metric"><span>${a}${l?" · "+l:""}</span><b>${round(x)}/60</b><small>${guaranteedLevel(x)}</small></div>`).join("");
+ document.getElementById("formulae").innerHTML=`<details><summary>Voir le détail des notes globales</summary>
+<p>SCIEN : ${v.scienSource==="official"?`<b>${v.scien}/60</b> — note du bulletin.`:`(${v.sn} + ${v.info}) ÷ 2 = ${round(v.scienRaw)} → <b>${v.scien}/60</b> (estimation).`}</p>
+<p>SCSOC : ${v.scsocSource==="official"?`<b>${v.scsoc}/60</b> — note du bulletin.`:`(${v.hist} + ${v.geo}) ÷ 2 = ${round(v.scsocRaw)} → <b>${v.scsoc}/60</b> (estimation).`}</p>
+<p>Expression/orientation/talents : ${v.exprSource==="official"?`<b>${v.expr}/60</b> — note du bulletin.`:`(${v.exprComponents.map(k=>v[k]).join(" + ")}) ÷ ${v.exprComponents.length} = ${round(v.exprRaw)} → <b>${v.expr}/60</b> (estimation indicative, la note officielle étant pondérée).`}</p>
+<p class="small">Une note globale saisie depuis le bulletin a toujours priorité. Les estimations sont arrondies à l’unité supérieure.</p></details>`;
+ let sh=s.level==="advanced"?`<span class="pill ok">🟢 Réussite au niveau globalement avancé</span>`:s.level==="base"?`<span class="pill info">🟡 Réussite au niveau globalement de base</span>`:`<span class="pill warn">🔴 Conditions de réussite pas encore remplies</span>`;
+ document.getElementById("success").innerHTML=`${sh}<p>${s.why}</p><p class="small">Le calcul retient uniquement ce qui est garanti par les résultats saisis et ne prédit pas une décision du conseil de classe.</p>`;
+ const ga=s.level==="advanced", passed=s.level==="advanced"||s.level==="base";
+ let out="";
+ // 4C
+ let lang=[["de","Allemand",v.de],["fr","Français",v.fr],["en","Anglais",v.en],["ma","Mathématiques",v.ma]];
+ let allAdv=lang.every(([k])=>lev(k)==="Avancé");
+ let ex=lang.filter(([, ,x])=>x>=50).length, allFort=lang.every(([, ,x])=>x>=40);
+ let cIssues=[]; if(!allAdv)cIssues.push("les 4 langues/mathématiques doivent être en Avancé");
+ if(ex<3)cIssues.push(`il faut 3 niveaux Excellence garantis (actuellement ${ex})`);
+ if(!allFort)cIssues.push("la 4e discipline doit être au minimum Fort");
+ if(v.scien<40)cIssues.push(`SCIEN ${round(v.scien)} → 40`);
+ if(v.scsoc<40)cIssues.push(`SCSOC ${round(v.scsoc)} → 40`);
+ if([v.sn,v.info,v.hist,v.geo].some(x=>x<30))cIssues.push("Sciences naturelles, Informatique, Histoire et Géographie doivent chacune être ≥30");
+ if(v.expr<50)cIssues.push(`Expression/orientation/talents ${round(v.expr)} → 50`);
+ if(v.exprComponents.some(k=>v[k]<20))cIssues.push("aucune des branches effectivement suivies d’expression/talents ne peut être <20");
+ out+=card("4C","Enseignement secondaire classique",ga,{d:cIssues.length?1:0,txt:cIssues.join(" ; ")});
+ // 4G
+ const mSci=()=>{let p1=[advNeed("ma",v.ma,40,"Mathématiques"),need(v.sn,30,"Sciences naturelles")].filter(Boolean),p2=[advNeed("ma",v.ma,30,"Mathématiques"),need(v.sn,40,"Sciences naturelles")].filter(Boolean);let mk=p=>({d:p.reduce((s,z)=>s+z.d,0),txt:p.length?p.map(z=>z.txt).join(" ; "):"Critère spécifique rempli."});return minPath([mk(p1),mk(p2)])}
+ out+=card("4GIG","Ingénierie",ga,{d:[advNeed("ma",v.ma,40,"Mathématiques"),need(v.info,30,"Informatique")].filter(Boolean).reduce((s,z)=>s+z.d,0),txt:[advNeed("ma",v.ma,40,"Mathématiques"),need(v.info,30,"Informatique")].filter(Boolean).map(z=>z.txt).join(" ; ")});
+ ["4GSN|Sciences naturelles","4GA3D|Architecture, design et développement durable","4GT2S|Technologies, sport et santé","4GSH|Sciences de la santé"].forEach(z=>{let [c,nm]=z.split("|");out+=card(c,nm,ga,mSci())});
+ out+=card("4G3S","Sciences naturelles, informatique et mathématiques",ga,{d:[advNeed("ma",v.ma,40,"Mathématiques"),need(v.sn,30,"Sciences naturelles")].filter(Boolean).reduce((s,z)=>s+z.d,0),txt:[advNeed("ma",v.ma,40,"Mathématiques"),need(v.sn,30,"Sciences naturelles")].filter(Boolean).map(z=>z.txt).join(" ; ")});
+ let cmA=[advNeed("fr",v.fr,40,"Français"), minPath([{d:advNeed("de",v.de,40,"Allemand")?.d||0,txt:advNeed("de",v.de,40,"Allemand")?.txt||""},{d:advNeed("en",v.en,40,"Anglais")?.d||0,txt:advNeed("en",v.en,40,"Anglais")?.txt||""}])].filter(Boolean);
+ out+=card("4GCM","Administrative et commerciale",ga,{d:cmA.reduce((s,z)=>s+z.d,0),txt:cmA.filter(z=>z.d).map(z=>z.txt).join(" ; ")});
+ out+=card("4GACV","Arts et communication visuelle",ga,{d:0,txt:""},true,"Compétences artistiques / dossier ou évaluation externe : non évalués par ce prototype.");
+ let ss=sciPair(v,v.sn,v.scsoc,"Sciences naturelles","SCSOC");
+ ["4GPM|Production musicale","4GPS|Professions de santé et professions sociales","4GSO|Sciences sociales"].forEach(z=>{let [c,nm]=z.split("|");out+=card(c,nm,ga,ss,c==="4GPM","Pour 4GPM, l’admission se fait également sur dossier ; cette condition externe n’est pas évaluée ici.")});
+ let ghOptions=["de","fr"].map(k=>{let x=k==="de"?v.de:v.fr,l=k==="de"?"Allemand":"Français";let q=advNeed(k,x,30,l);return {d:q?q.d:0,txt:q?q.txt:""}}); let gh=[advNeed("en",v.en,30,"Anglais"),minPath(ghOptions)].filter(Boolean);
+ out+=card("4GGH","Gestion de l’hospitalité",ga,{d:gh.reduce((s,z)=>s+z.d,0),txt:gh.filter(z=>z.d).map(z=>z.txt).join(" ; ")});
+ // DT compact rules
+ const dtMath=()=>{let target=lev("ma")==="Avancé"?30:40;return need(v.ma,target,`Mathématiques ${lev("ma")}`)||{d:0,txt:""}};
+ const langCriterion=k=>{let x=v[k],target=lev(k)==="Avancé"?30:40,label={de:"Allemand",fr:"Français",en:"Anglais"}[k];return need(x,target,`${label} ${lev(k)}`)||{d:0,txt:""}};
+ let ac=[langCriterion("fr"),minPath([langCriterion("de"),langCriterion("en")])]; out+=card("DT","Administration et commerce",passed,{d:ac.reduce((s,z)=>s+z.d,0),txt:ac.filter(z=>z.d).map(z=>z.txt).join(" ; ")});
+ let agPath=ga?{d:0,txt:""}:(need(v.sn,40,"Sciences naturelles")||{d:0,txt:""});
+ ["Agriculture","Environnement naturel"].forEach(nm=>out+=card("DT",nm,passed,agPath));
+ ["Smart technologies","Génie civil","Informatique","Mécanique générale","Mécatronique d’automobile","Smart buildings & energies"].forEach(nm=>out+=card("DT",nm,passed,dtMath()));
+ let ls=[langCriterion("de"),langCriterion("fr"),langCriterion("en")].sort((a,b)=>a.d-b.d).slice(0,2);["Hôtellerie et management","Tourisme et communication"].forEach(nm=>out+=card("DT",nm,passed,{d:ls.reduce((s,z)=>s+z.d,0),txt:ls.filter(z=>z.d).map(z=>z.txt).join(" ; ")}));
+ ["Design 3D","Graphisme","Image"].forEach(nm=>out+=card("DT",nm,passed,{d:0,txt:""},true,"Évaluation artistique/externe non calculée."));
+ // DAP
+ out+=`<div class="orientation"><h3>DAP — catégories A, B et C</h3>${status(passed,true)}
+ <p><b>Condition scolaire :</b> ${passed?"✓ une 5G réussie donne accès, au niveau scolaire, aux catégories A, B et C.":"⚠ il faut d’abord réussir la 5G."}</p>
+ <p class="small">Selon la formation : contrat d’apprentissage et/ou autres conditions particulières peuvent être nécessaires. La V1.9 n’énumère pas encore chaque métier DAP.</p></div>`;
+ document.getElementById("orientations").innerHTML=out;
+ // priorities
+ let pr=[];
+ if(s.level==="notyet") pr.push("Priorité : remplir d’abord les conditions de réussite de la 5G.");
+ const simpleTargets=[
+   ["Mathématiques",v.ma,40],["Sciences naturelles",v.sn,40],
+   ["Français",v.fr,40],["Allemand",v.de,40],["Anglais",v.en,40]
+ ];
+ simpleTargets.forEach(([label,x,target])=>{
+   if(x<target) pr.push(`${label} : ${round(x)} → ${target} (+${round(target-x)} point(s)).`);
+ });
+ function compositePriority(label,value,target,source,components){
+   if(value>=target) return;
+   if(source==="official"){
+     pr.push(`${label} : ${round(value)} → ${target} (+${round(target-value)} point(s) sur la note globale du bulletin).`);
+   } else {
+     const vals=components.map(k=>v[k]).filter(x=>x!==null);
+     const currentSum=vals.reduce((a,b)=>a+b,0);
+     const minSum=vals.length*(target-1)+1; // seuil exact pour que ceil(moyenne) atteigne target
+     const gain=Math.max(0,Math.ceil(minSum-currentSum));
+     pr.push(`${label} : ${round(value)} → ${target} (avec l’estimation actuelle, au moins +${gain} point(s) au total dans les branches composantes).`);
+   }
+ }
+ compositePriority("SCIEN",v.scien,30,v.scienSource,["sn","info"]);
+ compositePriority("SCSOC",v.scsoc,30,v.scsocSource,["hist","geo"]);
+ // Expression n'est pas convertie en "points à gagner dans les branches" car la note officielle est pondérée.
+ if(v.expr<30){
+   if(v.exprSource==="official") pr.push(`Expression/orientation/talents : ${round(v.expr)} → 30 (+${round(30-v.expr)} point(s) sur la note globale du bulletin).`);
+   else pr.push(`Expression/orientation/talents : ${round(v.expr)} → 30. Objectif indicatif : la note officielle étant pondérée, le nombre exact de points à gagner dans les branches ne peut pas être garanti.`);
+ }
+ // dédoublonnage et limitation pour rester lisible
+ pr=[...new Set(pr)];
+ document.getElementById("priorities").innerHTML=pr.length?`<ol>${pr.slice(0,5).map(x=>`<li>${x}</li>`).join("")}</ol>`:"<p>Les principaux seuils scolaires analysés par cette V1.9 sont déjà atteints.</p>";
+ document.getElementById("results").scrollIntoView({behavior:"smooth"});
+}
+function resetAll(){
+ subjects.forEach(([id,,l,optional])=>{document.getElementById(id).value="";if(l)document.getElementById(id+"Level").value="";if(optional){document.getElementById(id+"Taken").value="yes";toggleTaken(id)}});
+ ["scienOfficial","scsocOfficial","exprOfficial"].forEach(id=>document.getElementById(id).value="");
+ document.getElementById("results").classList.add("hidden");
+}
+</script>
+</body>
+</html>
