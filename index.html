@@ -60,7 +60,7 @@ footer{color:var(--muted);font-size:13px;margin-top:24px}
 </head>
 <body>
 <header><div class="wrap">
-<div class="eyebrow">Prototype fonctionnel V1.9 · Fiabilité</div>
+<div class="eyebrow">Prototype fonctionnel V1.9.1 · Fiabilité</div>
 <h1>Mes possibilités après la 5G</h1>
 <div class="sub">Encode tes résultats actuels. Le simulateur calcule tes 7 disciplines de promotion, estime le niveau de réussite garanti et analyse les critères scolaires des voies 4C, 4G, DT et DAP.</div>
 </div></header>
@@ -110,7 +110,7 @@ footer{color:var(--muted);font-size:13px;margin-top:24px}
 </div>
 
 <footer>
-Prototype pédagogique V1.9 · Fiabilité — calcul prudent : dans les zones où le conseil de classe peut attribuer deux niveaux différents, le simulateur retient le niveau inférieur garanti. Il ne remplace ni l’avis d’orientation ni une décision du conseil de classe.<br><strong>Calculateur conçu et créé par Sergio Bandeiras.</strong> Règles vérifiées sur la brochure MENJE « Que faire après la 5e de l’enseignement secondaire général ? », avril 2026.
+Prototype pédagogique V1.9.1 · Fiabilité — calcul prudent : dans les zones où le conseil de classe peut attribuer deux niveaux différents, le simulateur retient le niveau inférieur garanti. Il ne remplace ni l’avis d’orientation ni une décision du conseil de classe.<br><strong>Calculateur conçu et créé par Sergio Bandeiras.</strong> Règles vérifiées sur la brochure MENJE « Que faire après la 5e de l’enseignement secondaire général ? », avril 2026.
 </footer>
 </main>
 
@@ -158,13 +158,24 @@ function promotion(v){return [{k:"de",x:v.de},{k:"fr",x:v.fr},{k:"en",x:v.en},{k
 function success(v){
  const p=promotion(v), grave=p.filter(z=>z.x<20).length, insuff=p.filter(z=>z.x>=20&&z.x<30).length;
  const adv=["de","fr","en","ma"].filter(k=>lev(k)==="Avancé");
+ const hasDEFR=adv.includes("de")||adv.includes("fr");
  let advanced=false,why="";
  if(grave===0){
-   if(adv.length>=2 && (adv.includes("de")||adv.includes("fr")) && insuff===0){advanced=true;why="Au moins 2 cours avancés (dont allemand ou français) et aucune discipline insuffisante."}
+   if(adv.length>=2 && hasDEFR && insuff===0){advanced=true;why="Au moins 2 cours avancés (dont allemand ou français) et aucune discipline insuffisante."}
    else if(adv.length===3 && insuff<=1){advanced=true;why="3 cours avancés et au maximum 1 discipline insuffisante."}
    else if(adv.length===4 && insuff<=2){advanced=true;why="4 cours avancés et au maximum 2 disciplines insuffisantes."}
  }
- if(advanced)return {level:"advanced",why,adv:adv.length,insuff,grave};
+ if(advanced)return {level:"advanced",why,adv:adv.length,insuff,grave,advancedWhy:""};
+
+ let advancedIssues=[];
+ if(grave>0) advancedIssues.push(`${grave} discipline(s) de promotion gravement insuffisante(s) (<20).`);
+ if(adv.length<2) advancedIssues.push(`Il faut au minimum 2 cours avancés ; actuellement : ${adv.length}.`);
+ if(!hasDEFR && adv.length<3) advancedIssues.push("Pour la voie avec 2 cours avancés, au moins l’un des deux doit être l’allemand ou le français. Actuellement, allemand et français sont tous les deux au niveau de base.");
+ if(adv.length===2 && hasDEFR && insuff>0) advancedIssues.push(`Avec 2 cours avancés dont allemand ou français, aucune discipline de promotion ne peut être insuffisante ; actuellement : ${insuff}.`);
+ if(adv.length===3 && insuff>1) advancedIssues.push(`Avec 3 cours avancés, il peut y avoir au maximum 1 discipline insuffisante ; actuellement : ${insuff}.`);
+ if(adv.length===4 && insuff>2) advancedIssues.push(`Avec 4 cours avancés, il peut y avoir au maximum 2 disciplines insuffisantes ; actuellement : ${insuff}.`);
+ const advancedWhy=advancedIssues.length?`<b>Pourquoi le niveau globalement avancé n’est pas garanti :</b><ul>${advancedIssues.map(x=>`<li>${x}</li>`).join("")}</ul>`:"";
+
  // conversion conservative for advanced-course insufficiencies only
  let remaining=0;
  for(const z of p){
@@ -173,8 +184,8 @@ function success(v){
      remaining++;
    }
  }
- if(remaining<=2)return {level:"base",why:`Après conversion des insuffisances en cours avancé vers le niveau de base, il reste ${remaining} discipline(s) insuffisante(s).`,remaining,adv:adv.length,insuff,grave};
- return {level:"notyet",why:`Après conversion, il reste ${remaining} disciplines insuffisantes. Il faut en avoir au maximum 2 pour garantir la réussite au niveau globalement de base.`,remaining,adv:adv.length,insuff,grave};
+ if(remaining<=2)return {level:"base",why:`Après conversion des insuffisances en cours avancé vers le niveau de base, il reste ${remaining} discipline(s) insuffisante(s).`,remaining,adv:adv.length,insuff,grave,advancedWhy};
+ return {level:"notyet",why:`Après conversion, il reste ${remaining} disciplines insuffisantes. Il faut en avoir au maximum 2 pour garantir la réussite au niveau globalement de base.`,remaining,adv:adv.length,insuff,grave,advancedWhy};
 }
 function need(x,t,label){return x>=t?null:{d:round(t-x),txt:`${label} : ${round(x)} → ${t} (+${round(t-x)})`}}
 function advNeed(k,x,t,label){if(lev(k)!=="Avancé")return {d:999,txt:`${label} doit être suivi en cours avancé (une hausse de note seule ne suffit pas).`};return need(x,t,label)}
@@ -203,7 +214,7 @@ function analyse(){
 <p>Expression/orientation/talents : ${v.exprSource==="official"?`<b>${v.expr}/60</b> — note du bulletin.`:`(${v.exprComponents.map(k=>v[k]).join(" + ")}) ÷ ${v.exprComponents.length} = ${round(v.exprRaw)} → <b>${v.expr}/60</b> (estimation indicative, la note officielle étant pondérée).`}</p>
 <p class="small">Une note globale saisie depuis le bulletin a toujours priorité. Les estimations sont arrondies à l’unité supérieure.</p></details>`;
  let sh=s.level==="advanced"?`<span class="pill ok">🟢 Réussite au niveau globalement avancé</span>`:s.level==="base"?`<span class="pill info">🟡 Réussite au niveau globalement de base</span>`:`<span class="pill warn">🔴 Conditions de réussite pas encore remplies</span>`;
- document.getElementById("success").innerHTML=`${sh}<p>${s.why}</p><p class="small">Le calcul retient uniquement ce qui est garanti par les résultats saisis et ne prédit pas une décision du conseil de classe.</p>`;
+ document.getElementById("success").innerHTML=`${sh}${s.level!=="advanced"&&s.advancedWhy?s.advancedWhy:""}<p>${s.why}</p><p class="small">Le calcul retient uniquement ce qui est garanti par les résultats saisis et ne prédit pas une décision du conseil de classe.</p>`;
  const ga=s.level==="advanced", passed=s.level==="advanced"||s.level==="base";
  let out="";
  // 4C
@@ -243,7 +254,7 @@ function analyse(){
  // DAP
  out+=`<div class="orientation"><h3>DAP — catégories A, B et C</h3>${status(passed,true)}
  <p><b>Condition scolaire :</b> ${passed?"✓ une 5G réussie donne accès, au niveau scolaire, aux catégories A, B et C.":"⚠ il faut d’abord réussir la 5G."}</p>
- <p class="small">Selon la formation : contrat d’apprentissage et/ou autres conditions particulières peuvent être nécessaires. La V1.9 n’énumère pas encore chaque métier DAP.</p></div>`;
+ <p class="small">Selon la formation : contrat d’apprentissage et/ou autres conditions particulières peuvent être nécessaires. La V1.9.1 n’énumère pas encore chaque métier DAP.</p></div>`;
  document.getElementById("orientations").innerHTML=out;
  // priorities
  let pr=[];
@@ -276,7 +287,7 @@ function analyse(){
  }
  // dédoublonnage et limitation pour rester lisible
  pr=[...new Set(pr)];
- document.getElementById("priorities").innerHTML=pr.length?`<ol>${pr.slice(0,5).map(x=>`<li>${x}</li>`).join("")}</ol>`:"<p>Les principaux seuils scolaires analysés par cette V1.9 sont déjà atteints.</p>";
+ document.getElementById("priorities").innerHTML=pr.length?`<ol>${pr.slice(0,5).map(x=>`<li>${x}</li>`).join("")}</ol>`:"<p>Les principaux seuils scolaires analysés par cette V1.9.1 sont déjà atteints.</p>";
  document.getElementById("results").scrollIntoView({behavior:"smooth"});
 }
 function resetAll(){
