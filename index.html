@@ -56,11 +56,21 @@ footer{color:var(--muted);font-size:13px;margin-top:24px}
   .metrics{grid-template-columns:1fr}
 }
 
+
+/* V1.9.2 — branches sans niveau : pas de faux emplacement Base/Avancé */
+.level-empty{visibility:hidden}
+@media (max-width:700px){
+  .row.nolevel{grid-template-columns:minmax(0,1fr) minmax(110px,42%);align-items:center}
+  .row.nolevel>div:first-child{grid-column:1}
+  .row.nolevel>div:nth-child(2){display:none!important}
+  .row.nolevel>div:nth-child(3){grid-column:2}
+  .row.nolevel input{width:100%;box-sizing:border-box}
+}
 </style>
 </head>
 <body>
 <header><div class="wrap">
-<div class="eyebrow">Prototype fonctionnel V1.9.1 · Fiabilité</div>
+<div class="eyebrow">Prototype fonctionnel V1.9.2 · Fiabilité</div>
 <h1>Mes possibilités après la 5G</h1>
 <div class="sub">Encode tes résultats actuels. Le simulateur calcule tes 7 disciplines de promotion, estime le niveau de réussite garanti et analyse les critères scolaires des voies 4C, 4G, DT et DAP.</div>
 </div></header>
@@ -76,10 +86,10 @@ footer{color:var(--muted);font-size:13px;margin-top:24px}
 <div class="row"><div>Anglais</div><div><select id="enLevel"><option value="">—</option><option>Base</option><option>Avancé</option></select></div><div><input id="en" type="number" min="0" max="60" step="1" inputmode="decimal" placeholder="Note /60"></div></div>
 <div class="row"><div>Français</div><div><select id="frLevel"><option value="">—</option><option>Base</option><option>Avancé</option></select></div><div><input id="fr" type="number" min="0" max="60" step="1" inputmode="decimal" placeholder="Note /60"></div></div>
 <div class="row"><div>Mathématiques</div><div><select id="maLevel"><option value="">—</option><option>Base</option><option>Avancé</option></select></div><div><input id="ma" type="number" min="0" max="60" step="1" inputmode="decimal" placeholder="Note /60"></div></div>
-<div class="row"><div>Sciences naturelles</div><div>—</div><div><input id="sn" type="number" min="0" max="60" step="1" inputmode="decimal" placeholder="Note /60"></div></div>
-<div class="row"><div>Informatique</div><div>—</div><div><input id="info" type="number" min="0" max="60" step="1" inputmode="decimal" placeholder="Note /60"></div></div>
-<div class="row"><div>Géographie</div><div>—</div><div><input id="geo" type="number" min="0" max="60" step="1" inputmode="decimal" placeholder="Note /60"></div></div>
-<div class="row"><div>Histoire</div><div>—</div><div><input id="hist" type="number" min="0" max="60" step="1" inputmode="decimal" placeholder="Note /60"></div></div>
+<div class="row nolevel"><div>Sciences naturelles</div><div class="level-empty"></div><div><input id="sn" type="number" min="0" max="60" step="1" inputmode="decimal" placeholder="Note /60"></div></div>
+<div class="row nolevel"><div>Informatique</div><div class="level-empty"></div><div><input id="info" type="number" min="0" max="60" step="1" inputmode="decimal" placeholder="Note /60"></div></div>
+<div class="row nolevel"><div>Géographie</div><div class="level-empty"></div><div><input id="geo" type="number" min="0" max="60" step="1" inputmode="decimal" placeholder="Note /60"></div></div>
+<div class="row nolevel"><div>Histoire</div><div class="level-empty"></div><div><input id="hist" type="number" min="0" max="60" step="1" inputmode="decimal" placeholder="Note /60"></div></div>
 <div class="row" data-expr-component="yes"><div>Éducation artistique</div><div><select id="artTaken" onchange="toggleTaken('art')"><option value="yes">Cours suivi</option><option value="no">Je n’ai pas ce cours</option></select></div><div><input id="art" type="number" min="0" max="60" step="1" inputmode="decimal" placeholder="Note /60"></div></div>
 <div class="row" data-expr-component="yes"><div>Vie et société</div><div><select id="vesTaken" onchange="toggleTaken('ves')"><option value="yes">Cours suivi</option><option value="no">Je n’ai pas ce cours</option></select></div><div><input id="ves" type="number" min="0" max="60" step="1" inputmode="decimal" placeholder="Note /60"></div></div>
 <div class="row" data-expr-component="yes"><div>Digital Sciences</div><div><select id="digTaken" onchange="toggleTaken('dig')"><option value="yes">Cours suivi</option><option value="no">Je n’ai pas ce cours</option></select></div><div><input id="dig" type="number" min="0" max="60" step="1" inputmode="decimal" placeholder="Note /60"></div></div>
@@ -110,7 +120,7 @@ footer{color:var(--muted);font-size:13px;margin-top:24px}
 </div>
 
 <footer>
-Prototype pédagogique V1.9.1 · Fiabilité — calcul prudent : dans les zones où le conseil de classe peut attribuer deux niveaux différents, le simulateur retient le niveau inférieur garanti. Il ne remplace ni l’avis d’orientation ni une décision du conseil de classe.<br><strong>Calculateur conçu et créé par Sergio Bandeiras.</strong> Règles vérifiées sur la brochure MENJE « Que faire après la 5e de l’enseignement secondaire général ? », avril 2026.
+Prototype pédagogique V1.9.2 · Fiabilité — calcul prudent : dans les zones où le conseil de classe peut attribuer deux niveaux différents, le simulateur retient le niveau inférieur garanti. Il ne remplace ni l’avis d’orientation ni une décision du conseil de classe.<br><strong>Calculateur conçu et créé par Sergio Bandeiras.</strong> Règles vérifiées sur la brochure MENJE « Que faire après la 5e de l’enseignement secondaire général ? », avril 2026.
 </footer>
 </main>
 
@@ -239,7 +249,7 @@ function analyse(){
  out+=card("4GCM","Administrative et commerciale",ga,{d:cmA.reduce((s,z)=>s+z.d,0),txt:cmA.filter(z=>z.d).map(z=>z.txt).join(" ; ")});
  out+=card("4GACV","Arts et communication visuelle",ga,{d:0,txt:""},true,"Compétences artistiques / dossier ou évaluation externe : non évalués par ce prototype.");
  let ss=sciPair(v,v.sn,v.scsoc,"Sciences naturelles","SCSOC");
- ["4GPM|Production musicale","4GPS|Professions de santé et professions sociales","4GSO|Sciences sociales"].forEach(z=>{let [c,nm]=z.split("|");out+=card(c,nm,ga,ss,c==="4GPM","Pour 4GPM, l’admission se fait également sur dossier ; cette condition externe n’est pas évaluée ici.")});
+ ["4GPM|Production musicale","4GPS|Professions de santé et professions sociales","4GSO|Sciences sociales"].forEach(z=>{let [c,nm]=z.split("|");out+=card(c,nm,ga,ss,c==="4GPM",c==="4GPM"?"Pour 4GPM, l’admission se fait également sur dossier ; cette condition externe n’est pas évaluée ici.":"")});
  let ghOptions=["de","fr"].map(k=>{let x=k==="de"?v.de:v.fr,l=k==="de"?"Allemand":"Français";let q=advNeed(k,x,30,l);return {d:q?q.d:0,txt:q?q.txt:""}}); let gh=[advNeed("en",v.en,30,"Anglais"),minPath(ghOptions)].filter(Boolean);
  out+=card("4GGH","Gestion de l’hospitalité",ga,{d:gh.reduce((s,z)=>s+z.d,0),txt:gh.filter(z=>z.d).map(z=>z.txt).join(" ; ")});
  // DT compact rules
@@ -254,7 +264,7 @@ function analyse(){
  // DAP
  out+=`<div class="orientation"><h3>DAP — catégories A, B et C</h3>${status(passed,true)}
  <p><b>Condition scolaire :</b> ${passed?"✓ une 5G réussie donne accès, au niveau scolaire, aux catégories A, B et C.":"⚠ il faut d’abord réussir la 5G."}</p>
- <p class="small">Selon la formation : contrat d’apprentissage et/ou autres conditions particulières peuvent être nécessaires. La V1.9.1 n’énumère pas encore chaque métier DAP.</p></div>`;
+ <p class="small">Selon la formation : contrat d’apprentissage et/ou autres conditions particulières peuvent être nécessaires. La V1.9.2 n’énumère pas encore chaque métier DAP.</p></div>`;
  document.getElementById("orientations").innerHTML=out;
  // priorities
  let pr=[];
@@ -287,7 +297,7 @@ function analyse(){
  }
  // dédoublonnage et limitation pour rester lisible
  pr=[...new Set(pr)];
- document.getElementById("priorities").innerHTML=pr.length?`<ol>${pr.slice(0,5).map(x=>`<li>${x}</li>`).join("")}</ol>`:"<p>Les principaux seuils scolaires analysés par cette V1.9.1 sont déjà atteints.</p>";
+ document.getElementById("priorities").innerHTML=pr.length?`<ol>${pr.slice(0,5).map(x=>`<li>${x}</li>`).join("")}</ol>`:"<p>Les principaux seuils scolaires analysés par cette V1.9.2 sont déjà atteints.</p>";
  document.getElementById("results").scrollIntoView({behavior:"smooth"});
 }
 function resetAll(){
