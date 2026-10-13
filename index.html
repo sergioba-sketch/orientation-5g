@@ -57,7 +57,7 @@ footer{color:var(--muted);font-size:13px;margin-top:24px}
 }
 
 
-/* V1.9.4 — branches sans niveau : pas de faux emplacement Base/Avancé */
+/* V1.9.5 — branches sans niveau : pas de faux emplacement Base/Avancé */
 .level-empty{visibility:hidden}
 @media (max-width:700px){
   .row.nolevel{grid-template-columns:minmax(0,1fr) minmax(110px,42%);align-items:center}
@@ -70,7 +70,7 @@ footer{color:var(--muted);font-size:13px;margin-top:24px}
 </head>
 <body>
 <header><div class="wrap">
-<div class="eyebrow">Prototype fonctionnel V1.9.4 · Fiabilité</div>
+<div class="eyebrow">Prototype fonctionnel V1.9.5 · Fiabilité</div>
 <h1>Mes possibilités après la 5G</h1>
 <div class="sub">Encode tes résultats actuels. Le simulateur calcule tes 7 disciplines de promotion, estime le niveau de réussite garanti et analyse les critères scolaires des voies 4C, 4G, DT et DAP.</div>
 </div></header>
@@ -116,11 +116,11 @@ footer{color:var(--muted);font-size:13px;margin-top:24px}
 <section class="card"><h2>4. Mes possibilités</h2>
 <p class="small">🟢 critères scolaires remplis · 🔵 critères scolaires remplis mais condition externe · 🟠 critères pas encore remplis</p>
 <div id="orientations"></div></section>
-<section class="card"><h2>5. Mes objectifs les plus proches</h2><div id="priorities"></div></section>
+<section class="card hidden" id="prioritiesSection"><h2>5. Mes priorités de progression</h2><div id="priorities"></div></section>
 </div>
 
 <footer>
-Prototype pédagogique V1.9.4 · Fiabilité — calcul prudent : dans les zones où le conseil de classe peut attribuer deux niveaux différents, le simulateur retient le niveau inférieur garanti. Il ne remplace ni l’avis d’orientation ni une décision du conseil de classe.<br><strong>Calculateur conçu et créé par Sergio Bandeiras.</strong> Règles vérifiées sur la brochure MENJE « Que faire après la 5e de l’enseignement secondaire général ? », avril 2026.
+Prototype pédagogique V1.9.5 · Fiabilité — calcul prudent : dans les zones où le conseil de classe peut attribuer deux niveaux différents, le simulateur retient le niveau inférieur garanti. Il ne remplace ni l’avis d’orientation ni une décision du conseil de classe.<br><strong>Calculateur conçu et créé par Sergio Bandeiras.</strong> Règles vérifiées sur la brochure MENJE « Que faire après la 5e de l’enseignement secondaire général ? », avril 2026.
 </footer>
 </main>
 
@@ -265,7 +265,7 @@ function analyse(){
  // DAP
  out+=`<div class="orientation"><h3>DAP — catégories A, B et C</h3>${status(passed,true)}
  <p><b>Condition scolaire :</b> ${passed?"✓ une 5G réussie donne accès, au niveau scolaire, aux catégories A, B et C.":"⚠ il faut d’abord réussir la 5G."}</p>
- <p class="small">Selon la formation : contrat d’apprentissage et/ou autres conditions particulières peuvent être nécessaires. La V1.9.4 n’énumère pas encore chaque métier DAP.</p></div>`;
+ <p class="small">Selon la formation : contrat d’apprentissage et/ou autres conditions particulières peuvent être nécessaires. La V1.9.5 n’énumère pas encore chaque métier DAP.</p></div>`;
  document.getElementById("orientations").innerHTML=out;
  // priorities
  let pr=[];
@@ -298,7 +298,8 @@ function analyse(){
  }
  // dédoublonnage et limitation pour rester lisible
  pr=[...new Set(pr)];
- document.getElementById("priorities").innerHTML=pr.length?`<ol>${pr.slice(0,5).map(x=>`<li>${x}</li>`).join("")}</ol>`:"<p>Les principaux seuils scolaires analysés par cette V1.9.4 sont déjà atteints.</p>";
+ document.getElementById("prioritiesSection").classList.toggle("hidden",pr.length===0);
+ document.getElementById("priorities").innerHTML=pr.length?`<ol>${pr.slice(0,5).map(x=>`<li>${x}</li>`).join("")}</ol>`:"";
  document.getElementById("results").scrollIntoView({behavior:"smooth"});
 }
 function resetAll(){
