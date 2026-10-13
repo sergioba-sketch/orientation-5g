@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Simulateur d’orientation après la 5G — Prototype V1</title>
+<title>ORIEN5G — Simulateur d’orientation</title>
 <style>
 :root{--bg:#f5f7fb;--card:#fff;--ink:#172033;--muted:#667085;--line:#e5e7eb;--accent:#6657d9;--ok:#16865c;--warn:#b76e00;--info:#2878c7;--bad:#b42318}
 *{box-sizing:border-box} body{margin:0;background:var(--bg);font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--ink)}
@@ -66,20 +66,108 @@ footer{color:var(--muted);font-size:13px;margin-top:24px}
   .row.nolevel>div:nth-child(3){grid-column:2}
   .row.nolevel input{width:100%;box-sizing:border-box}
 }
+
+/* ORIEN5G V2.0 — nouvelle interface, moteur de calcul V1.9.5 inchangé */
+:root{--bg:#f3f6fc;--card:#fff;--ink:#142b50;--muted:#64748b;--line:#dce5f2;--accent:#345cc5;--ok:#237a55;--warn:#986b16;--info:#345cc5}
+body{background:var(--bg);color:var(--ink)}
+header{background:#142b50;padding:30px 20px 28px}
+.brand{display:flex;align-items:center;gap:16px}
+.brand-icon{width:60px;height:60px;flex:0 0 60px;background:#345cc5;border-radius:14px;display:grid;place-items:center}
+.brand h1{font-size:clamp(38px,5vw,48px);line-height:1;margin:0;font-weight:850;letter-spacing:-.045em;color:#fff}
+.brand h1 span{color:#73d5da}
+header .sub{margin-top:20px;padding-top:17px;border-top:1px solid #466185;font-size:16px;max-width:850px;opacity:1}
+.card{border-radius:18px;box-shadow:0 6px 22px rgba(20,43,80,.05);border-color:#e0e8f4}
+h2{font-size:23px;letter-spacing:-.025em}
+.grid{grid-template-columns:minmax(190px,1.6fr) minmax(110px,.65fr) minmax(170px,1fr);gap:12px}
+.grid.head{color:#64748b}
+.row>div{padding:8px 0;border-top:1px solid #eaf0f8}
+.row>div:first-child{font-weight:650}
+.row>div:nth-child(2){grid-column:3;grid-row:auto}
+.row>div:nth-child(3){grid-column:2;grid-row:auto}
+.row{display:contents}
+input,select{border:1px solid #d5e0ef;border-radius:10px;background:#f8faff;color:#142b50}
+input:focus,select:focus{outline:2px solid #73d5da;outline-offset:1px}
+.primary{background:#345cc5}.primary:hover{background:#274ba8}
+.secondary{background:#e9eff9;color:#142b50}
+.notice{background:#eef4ff;border-left-color:#345cc5}
+.metric{background:#f8faff;border-color:#e3ebf6}
+.metric b{color:#142b50}
+.orientation{background:white;border-color:#e1e9f5}
+.dashboard{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:15px 0 24px}
+.dash-tile{padding:17px 12px;border-radius:14px;text-align:center;background:#e5f5ed;color:#237a55}
+.dash-tile.wait{background:#fff1d9;color:#986b16}
+.dash-tile.extra{background:#e5edff;color:#345cc5}
+.dash-tile strong{display:block;font-size:29px;line-height:1.2}
+.dash-tile span{font-size:13px;font-weight:700}
+.group-result{border:1px solid #e0e8f4;border-radius:15px;background:white;margin:12px 0;overflow:hidden}
+.group-result>summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:16px 18px;font-size:16px;color:#142b50}
+.group-result>summary::-webkit-details-marker{display:none}
+.group-result>summary::after{content:"⌄";color:#64748b;font-size:21px}
+.group-result[open]>summary::after{content:"⌃"}
+.group-result .group-body{padding:0 14px 12px}
+.group-result .orientation{margin:0;border:0;border-top:1px solid #edf1f8;border-radius:0;padding:14px 4px}
+.group-result .orientation h3{font-size:16px;margin-bottom:6px}
+.group-result .orientation p{font-size:14px}
+.group-result .orientation p:nth-of-type(1),.group-result .orientation p:nth-of-type(2){display:none}
+.group-result .orientation details{margin-top:9px}
+.group-result .orientation .pill{font-size:12px}
+.group-result .orientation .result-title{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.group-result .orientation .result-title h3{margin:0}
+.group-result .orientation .detail-body{padding-top:5px}
+.group-result .orientation .detail-body p:nth-of-type(1),.group-result .orientation .detail-body p:nth-of-type(2){display:block}
+.group-count{font-size:12px;color:#64748b;font-weight:600;margin-left:auto}
+@media(max-width:700px){
+ header{padding:24px 16px}
+ .brand{gap:12px}
+ .brand h1{font-size:clamp(30px,8vw,42px)}
+ .brand-icon{width:60px;height:60px;flex-basis:60px}
+ .grid.head{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(72px,.65fr) minmax(112px,1fr);gap:7px;font-size:11px}
+ .grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(72px,.65fr) minmax(112px,1fr);gap:7px}
+ .row{display:contents}
+ .row>div{padding:9px 0;border-top:1px solid #eaf0f8;min-width:0}
+ .row>div:first-child{grid-column:1;grid-row:auto;font-size:13px;font-weight:650;align-self:center}
+ .row>div:nth-child(2){grid-column:3;grid-row:auto;align-self:center}
+ .row>div:nth-child(3){grid-column:2;grid-row:auto;align-self:center}
+ .row input,.row select{min-width:0;width:100%;font-size:14px;min-height:43px;padding:7px 5px}
+ .row.nolevel{display:contents}
+ .row.nolevel>div:first-child{grid-column:1}
+ .row.nolevel>div:nth-child(2){display:block!important;visibility:hidden;grid-column:3}
+ .row.nolevel>div:nth-child(3){grid-column:2}
+ .dashboard{gap:7px}
+ .dash-tile{padding:13px 5px}
+ .dash-tile strong{font-size:25px}
+ .dash-tile span{font-size:11px}
+ .card{padding:14px}
+}
+@media(max-width:380px){
+ .grid,.grid.head{grid-template-columns:minmax(0,1.2fr) 67px minmax(98px,1fr);gap:5px}
+ .row input,.row select{font-size:13px;padding:6px 3px}
+ .dashboard{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+
+/* V2.0.1 : résultats directs et sans compteurs */
+#orientations{margin-top:14px}
+#orientations .orientation-category{font-size:17px;color:#142b50;margin:25px 0 10px;padding:0 0 9px;border-bottom:2px solid #dce7f6}
+#orientations .orientation-category:first-child{margin-top:8px}
+#orientations .orientation{background:#fff;border:1px solid #e0e8f4;border-radius:12px;margin:8px 0;padding:12px 15px;box-shadow:none}
+#orientations .orientation h3{font-size:16px;margin:0 0 7px;color:#142b50}
+#orientations .orientation p{font-size:13px;line-height:1.45;margin:6px 0}
+#orientations .orientation .pill{font-size:12px}
+@media(max-width:700px){#orientations .orientation{padding:11px 12px}#orientations .orientation-category{font-size:15px}}
 </style>
 </head>
 <body>
 <header><div class="wrap">
-<div class="eyebrow">Prototype fonctionnel V1.9.5 · Fiabilité</div>
-<h1>Mes possibilités après la 5G</h1>
-<div class="sub">Encode tes résultats actuels. Le simulateur calcule tes 7 disciplines de promotion, estime le niveau de réussite garanti et analyse les critères scolaires des voies 4C, 4G, DT et DAP.</div>
+<div class="brand"><div class="brand-icon" aria-hidden="true"><svg viewBox="0 0 64 64" width="53" height="53" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="32" cy="32" r="27"/><circle cx="32" cy="32" r="3" fill="white"/><path d="M42 22 L36 36 L22 42 L28 28 Z" fill="white"/><path d="M28 28 L36 36 L22 42 Z" fill="#73D5DA" stroke="#73D5DA"/></svg></div>
+<h1>ORIEN<span>5G</span></h1></div>
+<div class="sub">Découvre tes possibilités d'orientation après la 5G et les objectifs à atteindre.</div>
 </div></header>
 
 <main class="wrap">
 <section class="card">
-<h2>1. Mes résultats</h2>
-<p class="small"><b>Version mobile :</b> les champs sont intégrés directement à la page pour rester visibles dans l’aperçu iPhone.<br><br>Notes sur 60. Pour allemand, français, anglais et mathématiques, indique aussi le cours suivi. Pour les cours d’expression/orientation/talents, indique si tu suis réellement le cours.</p>
-<div class="grid head"><div>Branche</div><div>Niveau / présence</div><div>Note /60</div></div>
+<h2>1. Mes notes</h2>
+<p class="small">Indique tes notes sur 60. Précise le niveau des quatre cours concernés et si tu suis les cours facultatifs.</p>
+<div class="grid head"><div>Branche</div><div>Note / 60</div><div>Niveau / présence</div></div>
 
 <div id="inputs">
 <div class="row"><div>Allemand</div><div><select id="deLevel"><option value="">—</option><option>Base</option><option>Avancé</option></select></div><div><input id="de" type="number" min="0" max="60" step="1" inputmode="decimal" placeholder="Note /60"></div></div>
@@ -113,14 +201,14 @@ footer{color:var(--muted);font-size:13px;margin-top:24px}
 <div id="results" class="hidden">
 <section class="card"><h2>2. Mes 7 disciplines de promotion</h2><div id="metrics" class="metrics"></div><div id="formulae"></div></section>
 <section class="card"><h2>3. Ma situation actuelle</h2><div id="success"></div></section>
-<section class="card"><h2>4. Mes possibilités</h2>
+<section class="card"><h2>4. Mes possibilités d’orientation</h2>
 <p class="small">🟢 critères scolaires remplis · 🔵 critères scolaires remplis mais condition externe · 🟠 critères pas encore remplis</p>
 <div id="orientations"></div></section>
 <section class="card hidden" id="prioritiesSection"><h2>5. Mes priorités de progression</h2><div id="priorities"></div></section>
 </div>
 
 <footer>
-Prototype pédagogique V1.9.5 · Fiabilité — calcul prudent : dans les zones où le conseil de classe peut attribuer deux niveaux différents, le simulateur retient le niveau inférieur garanti. Il ne remplace ni l’avis d’orientation ni une décision du conseil de classe.<br><strong>Calculateur conçu et créé par Sergio Bandeiras.</strong> Règles vérifiées sur la brochure MENJE « Que faire après la 5e de l’enseignement secondaire général ? », avril 2026.
+ORIEN5G V2.0.1 · Prototype graphique — calcul prudent : dans les zones où le conseil de classe peut attribuer deux niveaux différents, le simulateur retient le niveau inférieur garanti. Il ne remplace ni l’avis d’orientation ni une décision du conseil de classe.<br><strong>Calculateur conçu et créé par Sergio Bandeiras.</strong> Règles vérifiées sur la brochure MENJE « Que faire après la 5e de l’enseignement secondaire général ? », avril 2026.
 </footer>
 </main>
 
@@ -212,6 +300,26 @@ function card(code,name,genOK,path,external=false,extra=""){
  <p><b>1. Réussite de la 5G :</b> ${genOK?"✓ condition générale remplie":"⚠ condition générale pas encore remplie"}</p>
  <p><b>2. Critères spécifiques :</b> ${specOK?"✓ remplis":path.txt}</p>${extra?`<p class="small">${extra}</p>`:""}</div>`;
 }
+
+function simplifyOrientationResults(){
+ const root=document.getElementById("orientations");
+ const items=Array.from(root.children);
+ root.replaceChildren();
+ let previous="";
+ for(const item of items){
+  const heading=item.querySelector("h3")?.textContent||"";
+  const code=heading.split(" — ")[0];
+  const category=code==="4C"?"4C":code.startsWith("4G")?"4G":code==="DAP"?"DAP":"DT";
+  if(category!==previous){
+   const section=document.createElement("h3");
+   section.className="orientation-category";
+   section.textContent=({"4C":"4C — Enseignement secondaire classique","4G":"4G — Enseignement secondaire général","DT":"DT — Diplôme de technicien","DAP":"DAP — Diplôme d’aptitude professionnelle"})[category];
+   root.appendChild(section);
+   previous=category;
+  }
+  root.appendChild(item);
+ }
+}
 function analyse(){
  const e=validate(),err=document.getElementById("error");
  if(e){err.textContent=e;err.classList.remove("hidden");return} err.classList.add("hidden");
@@ -265,8 +373,9 @@ function analyse(){
  // DAP
  out+=`<div class="orientation"><h3>DAP — catégories A, B et C</h3>${status(passed,true)}
  <p><b>Condition scolaire :</b> ${passed?"✓ une 5G réussie donne accès, au niveau scolaire, aux catégories A, B et C.":"⚠ il faut d’abord réussir la 5G."}</p>
- <p class="small">Selon la formation : contrat d’apprentissage et/ou autres conditions particulières peuvent être nécessaires. La V1.9.5 n’énumère pas encore chaque métier DAP.</p></div>`;
+ <p class="small">Selon la formation : contrat d’apprentissage et/ou autres conditions particulières peuvent être nécessaires. Le simulateur n’énumère pas encore chaque métier DAP.</p></div>`;
  document.getElementById("orientations").innerHTML=out;
+ simplifyOrientationResults();
  // priorities
  let pr=[];
  if(s.level==="notyet") pr.push("Priorité : remplir d’abord les conditions de réussite de la 5G.");
